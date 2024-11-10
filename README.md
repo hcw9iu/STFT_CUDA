@@ -47,9 +47,15 @@ Use `test_cuda.py` script to benchmark CUDA and Python implementation.
 ```bash
 python test_cuda.py
 ```
-**Performance**
-![](https://wdnmd-nft.infura-ipfs.io/ipfs/QmPESJ5B3u8DDXEAhJfjptSgN4EDrwBfevwqiBabmyGBZi)
-**STFT Result**
-![](https://wdnmd-nft.infura-ipfs.io/ipfs/QmSrSaUvpgPUEJkopTqVHTycXs1izC4SiLRLhixyH5vECD)
+### Performance
+The following graph shows the performance comparison between CUDA and Python implementations:
+
+![CUDA vs Python Performance Benchmark](https://wdnmd-nft.infura-ipfs.io/ipfs/QmPESJ5B3u8DDXEAhJfjptSgN4EDrwBfevwqiBabmyGBZi)
+
+### STFT Result
+Comparison of STFT results between CUDA and Python implementations:
+
+![STFT Result Comparison](https://wdnmd-nft.infura-ipfs.io/ipfs/QmSrSaUvpgPUEJkopTqVHTycXs1izC4SiLRLhixyH5vECD)
+
 ## Additional Resource
 For more information visit 

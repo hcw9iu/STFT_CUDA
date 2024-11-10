@@ -15,11 +15,13 @@ It includes one CUDA module and a test python script.
 ## Installation
 1. Clone the repo
 2. Check compiler version *(gcc after 11 not supported)*
+
     ```bash
     which gcc #(returns default, may be newer than 11)
     which gcc-11 #(returns gcc 11)
     ```
-4. Build *(with specifying compiler)*
+3. Build *(with specifying compiler)*
+
     ```bash
     mkdir build
     cd build

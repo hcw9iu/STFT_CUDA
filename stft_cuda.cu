@@ -63,7 +63,7 @@ int hop_size, int fft_size, int Fs) {
     cudaMalloc(&d_output, num_segments * fft_size * sizeof(cuFloatComplex));
     cudaMalloc(&d_hanning_window, window_size * sizeof(float));
     
-    // [!] 創建並初始化 hanning window
+    // 創建並初始化 hanning window
     float* h_hanning = (float*)malloc(window_size * sizeof(float));
     for(int i = 0; i < window_size; i++) {
         h_hanning[i] = 0.5f * (1.0f - cosf(2.0f * M_PI * i / (window_size - 1)));
@@ -97,13 +97,13 @@ int hop_size, int fft_size, int Fs) {
         printf("CUFFT error: ExecR2C failed\n");
     }
     
-    // [!] FFT 後正規化
+    // FFT 後正規化
     int total_elements = num_segments * (fft_size/2 + 1);
     dim3 normalize_block(256);
     dim3 normalize_grid((total_elements + normalize_block.x - 1) / normalize_block.x);
     normalize_fft<<<normalize_grid, normalize_block>>>((cufftComplex*)d_output, total_elements, (float)Fs);
     
-    // [!] 確保正規化完成
+    // 確保正規化完成
     cudaDeviceSynchronize();
     
     //size_t src_pitch = num_segments * sizeof(cuFloatComplex);
@@ -122,18 +122,18 @@ int hop_size, int fft_size, int Fs) {
     cudaMemcpy(output, temp, num_segments * (fft_size/2+1) * sizeof(cuFloatComplex), cudaMemcpyDeviceToHost);
     
 
-    // [!] 釋放所有內存
+    // 釋放所有內存
     cufftDestroy(plan);
     cudaFree(d_input);
     cudaFree(d_output);
     cudaFree(d_hanning_window);
     
-    // [!] 確保所有 CUDA 操作完成
+    // 確保所有 CUDA 操作完成
     cudaDeviceSynchronize();
 
 }
 
-// pybind11 包裝函數
+// pybind11 wrapper
 void stft_pybind(py::array_t<float> inputArray, py::array_t<std::complex<float>> outputArray, int window_size, int hop_size, int fft_size, int Fs) {
     auto inputBuf = inputArray.request();
     auto outputBuf = outputArray.request();

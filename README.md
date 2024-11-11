@@ -37,10 +37,10 @@ It includes one CUDA module and a test python script.
 5. Build CUDA Extension *(with specified compiler)*
 
     ```bash
-    cmake -B build \ #create and build in folder "build"
+    cmake -B build \ 
         -DCMAKE_C_COMPILER=gcc-11 \
         -DCMAKE_CXX_COMPILER=g++-11 .
-    cmake --build build #make in "build" folder
+    cmake --build build 
     ```
 
 ## Usage

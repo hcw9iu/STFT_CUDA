@@ -3,10 +3,6 @@ project(stft_cuda LANGUAGES C CXX CUDA)
 
 find_package(CUDAToolkit REQUIRED)
 
-#add_library(stft_cuda SHARED stft_cuda.cu)
-#target_link_libraries(stft_cuda CUDA::cufft)
-#set(CMAKE_PREFIX_PATH "/home/hcw/anaconda3/envs/v38/lib/python3.8/site-packages/pybind11/share/cmake/pybind11")
-
 set(CMAKE_C_COMPILER /usr/bin/gcc-11)
 set(CMAKE_CXX_COMPILER /usr/bin/g++-11)
 set(CUDA_HOST_COMPILER /usr/bin/gcc-11)

@@ -8,6 +8,7 @@ It includes one CUDA module and a test python script.
 ## Features
 * Implement STFT in CUDA.
 * Compare Python and CUDA version time consumption.
+* Burn performance on different parameters.
 
 ## Building from Source
 ### Prerequisites
@@ -22,24 +23,20 @@ It includes one CUDA module and a test python script.
     conda install -c conda-forge cmake pybind11
     conda install -c nvidia cuda-toolkit
     ```
-3. Check compiler version *(g++ after 11 not supported)*
-
-    ```bash
-    which g++ #(returns default, may be newer than 11)
-    whereis g++-11 #(returns g++ 11)
-    ```
-
-4. Install Python Dependencies
+3. Install Python Dependencies
 
     ```bash
     pip install -r requirements.txt
     ```
-5. Build CUDA Extension *(with specified compiler)*
+4. Build CUDA Extension *(with specified compiler)*
 
     ```bash
     cmake -B build \ 
         -DCMAKE_C_COMPILER=gcc-11 \
         -DCMAKE_CXX_COMPILER=g++-11 .
+    ```
+    or
+    ```
     cmake --build build 
     ```
 
@@ -50,39 +47,40 @@ import numpy as np
 import matplotlib.pyplot as plt
 from build import stft_cuda
 
-l = 1024
+l = 1024    #signal length
 window_size = 256
 hop = 128
 N = 256     #fft size
 Fs = 1000   #sampling rate
-
-s = np.random.rand(l).astype(np.float32)
-t = np.arange(l)/Fs
-c = np.sin(2*np.pi*200*t)
-x = c*s #input signal
-
-...
-
-out_shape = (N,seg)
-out = np.empty(out_shape, dtype=np.complex64)
-stft_cuda.stft(x,out,window_size,hop,N,Fs)
-
-out = out[:1+N//2,...] #only keep the positive frequencies
 ```
-## Benchmarking
-Use `test_cuda.py` script to benchmark CUDA and Python implementation.
+## Benchmark
+Run scripts.
 ```bash
 python test_cuda.py
+python test_hop.py
+python test_win.py
 ```
 ### Performance
-The following graph shows the performance comparison between CUDA and Python implementations:
+Performance compare on Python and different CUDA implementations:
+- CUDA: Original design.
+- CUDA Align: Shared memory on window function. 
+- CUDA Async: Strean design.
 
-![CUDA vs Python Performance Benchmark](https://wdnmd-nft.infura-ipfs.io/ipfs/QmPESJ5B3u8DDXEAhJfjptSgN4EDrwBfevwqiBabmyGBZi)
+**Length Burning**
+![CUDA vs Python Performance Benchmark](https://wdnmd-nft.infura-ipfs.io/ipfs/QmdYqn19guY4ZpG8hQkpnnXnLGDfidvNFeYG6K9iBcbQpj)
 
-- CUDA implementation shows significant speedup for larger inputs
-- Performance scales well with input size
+- Testing large signal length at `hop_size = 32` and `win_size = 256`
+- CUDA is 10 times faster.
 
-### STFT Result
+**Burning Hop Size**
+![](https://wdnmd-nft.infura-ipfs.io/ipfs/Qmb1pKNk3QMwHpMk4idNcYee8ikKZZMKAJsFrs8KhNbeZN)
+- Testing smaller hop size at fixed length and window size.
+- CUDA is in greater advantage for even smaller hop size.
+
+**Burning Window** 
+
+
+## Equality Check
 Comparison of STFT results between CUDA and Python implementations:
 
 ![STFT Result Comparison](https://wdnmd-nft.infura-ipfs.io/ipfs/QmSrSaUvpgPUEJkopTqVHTycXs1izC4SiLRLhixyH5vECD)

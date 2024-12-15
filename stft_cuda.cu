@@ -20,7 +20,6 @@ __global__ void process_segments(float* input, float* output,
         if (input_idx < sig_len) {
             float sample = input[input_idx] * hanning_w[tid];
             output[m * win_size + tid] = sample;
-            //output[m * fft_size + tid].y = 0.0f;
         }
     }
 }
@@ -55,21 +54,20 @@ void stft_cufft_hanning(float* input, cuFloatComplex* output, int sig_len, int w
 int hop_size, int fft_size, int Fs) {
     int segs = 1 + (sig_len - win_size) / hop_size;
     
-    // 分配設備內存
-    //float *d_input, *d_hanning_win, *d_segs;
+    // device memory
     float *d_input, *d_hanning_win, *d_output_B;
     cufftComplex *d_output, *d_output_T;
     
-    //size_t fft_buffer_size = segs * fft_size * sizeof(float);  // FFT 緩衝區大小
-    size_t output_samples = segs * (fft_size/2+1) * sizeof(cufftComplex);  // 輸出緩衝區大小
+    // set output size
+    size_t output_samples = segs * (fft_size/2+1) * sizeof(cufftComplex);  
     size_t samples = segs * fft_size * sizeof(cufftComplex); 
     size_t samples_B = segs * win_size * sizeof(float); 
 
-    // 分配足夠的空間用於 FFT
-    cudaMalloc(&d_input, sig_len * sizeof(float));  // 修改：分配 FFT 緩衝區大小
-    cudaMalloc(&d_output_B, samples_B);  // 修改：分配 FFT 緩衝區大小
-    cudaMalloc(&d_output, samples);  // FFT 輸出需要相同大小
-    cudaMalloc(&d_output_T, output_samples);  // 最終輸出緩衝區
+    // allocate device memory
+    cudaMalloc(&d_input, sig_len * sizeof(float));  
+    cudaMalloc(&d_output_B, samples_B);  // input segment handler buffer
+    cudaMalloc(&d_output, samples);  // FFT output buffer
+    cudaMalloc(&d_output_T, output_samples);  // transposed final output buffer
     cudaMalloc(&d_hanning_win, win_size * sizeof(float));
 
     cudaError_t cudaErr = cudaGetLastError();
@@ -124,24 +122,13 @@ int hop_size, int fft_size, int Fs) {
     
     // ensure normalization completed
     cudaDeviceSynchronize();
-    
-    //size_t src_pitch = num_segments * sizeof(cuFloatComplex);
-    //size_t dst_pitch = (fft_size/2 + 1) * sizeof(cuFloatComplex);
-    //size_t width = sizeof(cuFloatComplex);  // 每次複製一個複數值
-    //size_t height = num_segments;  // 行數，即時間段的數量
-
-    //cudaMemcpy2D(output, dst_pitch, d_output, src_pitch, width, height, cudaMemcpyDeviceToHost);
-
-
-    //cuFloatComplex* temp;
-    //cudaMalloc(&temp, segs * (fft_size/2+1) * sizeof(cuFloatComplex));
 
     performTranspose(d_output, d_output_T, segs, fft_size);
 
     cudaMemcpy(output, d_output_T, segs * (fft_size/2+1) * sizeof(cufftComplex), cudaMemcpyDeviceToHost);
     
 
-    // 釋放所有內存
+    // release memory
     cufftDestroy(plan);
     cudaFree(d_input);
     cudaFree(d_output);
@@ -149,7 +136,7 @@ int hop_size, int fft_size, int Fs) {
     cudaFree(d_hanning_win);
     cudaFree(d_output_T);
     
-    // 確保所有 CUDA 操作完成
+    // ensure all CUDA operations completed
     cudaDeviceSynchronize();
 
 }
